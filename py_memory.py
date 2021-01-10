@@ -9,6 +9,61 @@ from MemoryCard import Card
 suites = ['hearts', 'diamonds', 'spades', 'clubs']
 values = ['ace', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'jack', 'queen', 'king']
 
+cards_to_images = {
+                    'ace of clubs': 'AC.png',
+                    'ace of diamonds': 'AD.png',
+                    'ace of hearts': 'AH.png',
+                    'ace of spades': 'AS.png',
+                    'two of clubs': '2C.png',
+                    'two of diamonds': '2D.png',
+                    'two of hearts': '2H.png',
+                    'two of spades': '2S.png',
+                    'three of clubs': '3C.png',
+                    'three of diamonds': '3D.png',
+                    'three of hearts': '3H.png',
+                    'three of spades': '3S.png',
+                    'four of clubs': '4C.png',
+                    'four of diamonds': '4D.png',
+                    'four of hearts': '4H.png',
+                    'four of spades': '4S.png',
+                    'five of clubs': '5C.png',
+                    'five of diamonds': '5D.png',
+                    'five of hearts': '5H.png',
+                    'five of spades': '5S.png',
+                    'six of clubs': '6C.png',
+                    'six of diamonds': '6D.png',
+                    'six of hearts': '6H.png',
+                    'six of spades': '6S.png',
+                    'seven of clubs': '7C.png',
+                    'seven of diamonds': '7D.png',
+                    'seven of hearts': '7H.png',
+                    'seven of spades': '7S.png',
+                    'eight of clubs': '8C.png',
+                    'eight of diamonds': '8D.png',
+                    'eight of hearts': '8H.png',
+                    'eight of spades': '8S.png',
+                    'nine of clubs': '9C.png',
+                    'nine of diamonds': '9D.png',
+                    'nine of hearts': '9H.png',
+                    'nine of spades': '9S.png',
+                    'ten of clubs': '10C.png',
+                    'ten of diamonds': '10D.png',
+                    'ten of hearts': '10H.png',
+                    'ten of spades': '10S.png',
+                    'jack of clubs': 'JC.png',
+                    'jack of diamonds': 'JD.png',
+                    'jack of hearts': 'JH.png',
+                    'jack of spades': 'JS.png',
+                    'queen of clubs': 'KC.png',
+                    'queen of diamonds': 'KD.png',
+                    'queen of hearts': 'KH.png',
+                    'queen of spades': 'KS.png',
+                    'king of clubs': 'KC.png',
+                    'king of diamonds': 'KD.png',
+                    'king of hearts': 'KH.png',
+                    'king of spades': 'KS.png'
+}
+
 deck = [Card(value, suite) for value in values for suite in suites]
 random.shuffle(deck)
 
@@ -44,7 +99,7 @@ def main():
         draw_grid()
         update_grid()
         update_cell_state(0)
-        update_cell_state(25)
+        update_cell_state(14)
         update_cell_state(51)
         #cell_state_updater()
         #print(cell_tracker)
