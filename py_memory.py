@@ -1,6 +1,6 @@
 import pygame
 import sys
-import itertools
+import os
 import random
 from MemoryCard import Card
 
@@ -63,6 +63,14 @@ cards_to_images = {
                     'king of hearts': 'KH.png',
                     'king of spades': 'KS.png'
 }
+
+# Load Explosions sprite set
+card_images = []
+path = "assets/cards"
+for file_name in cards_to_images.values():
+    image = pygame.transform.scale(pygame.image.load(path + os.sep + file_name), (64, 64))
+    card_images.append(image)
+
 
 deck = [Card(value, suite) for value in values for suite in suites]
 random.shuffle(deck)
@@ -161,6 +169,9 @@ def update_grid():
                                 ((translate_cell_to_coord(row_col[0])[0]) + 10, (translate_cell_to_coord(row_col[1])[1]) + 25))
                     SCREEN.blit(textsurface3,
                                 ((translate_cell_to_coord(row_col[0])[0]) + 10, (translate_cell_to_coord(row_col[1])[1]) + 40))
+                    for img in card_images:
+                        print(img)
+                        SCREEN.blit(card_images[2], (translate_cell_to_coord(row_col[0])[0], translate_cell_to_coord(row_col[1])[1]))
                 if cell_tracker[key][2] is False:
                     if key == counter - 1:
                         text_string = str(counter)
