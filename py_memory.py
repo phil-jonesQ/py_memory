@@ -68,7 +68,7 @@ cards_to_images = {
 card_images = {}
 path = "assets/cards"
 for name, file_name in cards_to_images.items():
-    image = pygame.transform.scale(pygame.image.load(path + os.sep + file_name), (64, 64))
+    image = pygame.transform.scale(pygame.image.load(path + os.sep + file_name), (100, 100))
     card_images[name] = image
 
 
@@ -80,8 +80,8 @@ cell_tracker = {}
 BLACK = (0, 0, 0)
 WHITE = (200, 200, 200)
 RED = (255, 0, 0)
-WINDOW_HEIGHT = 640
-WINDOW_WIDTH = 640
+WINDOW_HEIGHT = 900
+WINDOW_WIDTH = 900
 SCALE = 30
 ROWS = 8
 DECK_LIMIT = 52
@@ -170,9 +170,10 @@ def update_grid():
                     SCREEN.blit(textsurface3,
                                 ((translate_cell_to_coord(row_col[0])[0]) + 10, (translate_cell_to_coord(row_col[1])[1]) + 40))
                     for img in card_images:
-                        img_to_display = cell_tracker[key][0],"of",cell_tracker[key][1]
-                        print (img_to_display)
-                        SCREEN.blit(card_images['ace of clubs'], (translate_cell_to_coord(row_col[0])[0], translate_cell_to_coord(row_col[1])[1]))
+                        card = str(cell_tracker[key][0])
+                        suite = str(cell_tracker[key][1])
+                        card_key = card + " of " + suite
+                        SCREEN.blit(card_images[card_key], (translate_cell_to_coord(row_col[0])[0], translate_cell_to_coord(row_col[1])[1]))
                 if cell_tracker[key][2] is False:
                     if key == counter - 1:
                         text_string = str(counter)
