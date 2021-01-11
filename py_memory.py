@@ -65,11 +65,11 @@ cards_to_images = {
 }
 
 # Load Explosions sprite set
-card_images = []
+card_images = {}
 path = "assets/cards"
-for file_name in cards_to_images.values():
+for name, file_name in cards_to_images.items():
     image = pygame.transform.scale(pygame.image.load(path + os.sep + file_name), (64, 64))
-    card_images.append(image)
+    card_images[name] = image
 
 
 deck = [Card(value, suite) for value in values for suite in suites]
@@ -170,8 +170,9 @@ def update_grid():
                     SCREEN.blit(textsurface3,
                                 ((translate_cell_to_coord(row_col[0])[0]) + 10, (translate_cell_to_coord(row_col[1])[1]) + 40))
                     for img in card_images:
-                        print(img)
-                        SCREEN.blit(card_images[2], (translate_cell_to_coord(row_col[0])[0], translate_cell_to_coord(row_col[1])[1]))
+                        img_to_display = cell_tracker[key][0],"of",cell_tracker[key][1]
+                        print (img_to_display)
+                        SCREEN.blit(card_images['ace of clubs'], (translate_cell_to_coord(row_col[0])[0], translate_cell_to_coord(row_col[1])[1]))
                 if cell_tracker[key][2] is False:
                     if key == counter - 1:
                         text_string = str(counter)
