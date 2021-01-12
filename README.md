@@ -2,11 +2,11 @@
 
 Simple memory type game
 
-* Set of duplicated cards
+* Set of standard playing cards
 
-* Numbered 1 - 32
+* Numbered 1 - 52
 
-* Separated by colour
+* Separated by suites
 
 * Layed out, face down, in grid of 64
 
