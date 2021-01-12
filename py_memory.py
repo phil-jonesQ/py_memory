@@ -54,17 +54,19 @@ cards_to_images = {
                     'jack of diamonds': 'JD.png',
                     'jack of hearts': 'JH.png',
                     'jack of spades': 'JS.png',
-                    'queen of clubs': 'KC.png',
-                    'queen of diamonds': 'KD.png',
-                    'queen of hearts': 'KH.png',
-                    'queen of spades': 'KS.png',
+                    'queen of clubs': 'QC.png',
+                    'queen of diamonds': 'QD.png',
+                    'queen of hearts': 'QH.png',
+                    'queen of spades': 'QS.png',
                     'king of clubs': 'KC.png',
                     'king of diamonds': 'KD.png',
                     'king of hearts': 'KH.png',
-                    'king of spades': 'KS.png'
+                    'king of spades': 'KS.png',
+                    'card background': 'red_back.png'
 }
 
-# Load Explosions sprite set
+# Load Card Image set
+# Store in a dictionary so we can map the image to name
 card_images = {}
 path = "assets/cards"
 for name, file_name in cards_to_images.items():
@@ -75,7 +77,9 @@ for name, file_name in cards_to_images.items():
 deck = [Card(value, suite) for value in values for suite in suites]
 random.shuffle(deck)
 
+# Track the game state by storing each cell's card and if it's been revealed (True|False)
 cell_tracker = {}
+compare_tracker = {}
 
 BLACK = (0, 0, 0)
 WHITE = (200, 200, 200)
@@ -86,6 +90,7 @@ SCALE = 30
 ROWS = 8
 DECK_LIMIT = 52
 
+
 cell_sz = WINDOW_HEIGHT // ROWS
 surface_sz = ROWS * cell_sz
 
@@ -95,26 +100,41 @@ myfont = pygame.font.SysFont('Comic Sans MS', 15)
 
 def main():
     global SCREEN, CLOCK
+    global TURNS
+    TURNS = 2
     pygame.init()
     SCREEN = pygame.display.set_mode((surface_sz, surface_sz))
     CLOCK = pygame.time.Clock()
     SCREEN.fill(BLACK)
-    draw_grid()
     cell_state_initialise()
-    print(cell_tracker)
+    draw_grid()
+    update_grid()
 
     while True:
-        draw_grid()
-        update_grid()
-        update_cell_state(0)
-        update_cell_state(14)
-        update_cell_state(51)
+
         #cell_state_updater()
         #print(cell_tracker)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # Set the x, y postions of the mouse click
+                x, y = event.pos
+                clicked_col = (event.pos[0] // cell_sz) + 1
+                clicked_row = (event.pos[1] // cell_sz) + 1
+                draw_grid()
+                cell_to_update = translate_row_cols_to_cell(clicked_col, clicked_row)
+                if cell_to_update < DECK_LIMIT:
+                    print(cell_to_update)
+                    update_cell_state(cell_to_update)
+                    TURNS = TURNS - 1
+                update_grid()
+                if TURNS < 1:
+                    TURNS = 2
+                    check_for_pairs()
+                    update_grid()
+
         pygame.display.update()
         pygame.display.flip()
 
@@ -134,6 +154,17 @@ def translate_cell_to_row_cols(cell):
     return tuple((COL, ROW))
 
 
+def translate_row_cols_to_cell(cols, rows):
+    counter = -ROWS - 1
+    print("Translate  ", cols, rows)
+    for ROW in range(ROWS):
+        for COL in range(ROWS):
+            counter = counter + 1
+            if ROW == rows and COL == cols - 1:
+                return counter
+    return counter
+
+
 def cell_state_initialise():
     counter = 0
     for ROW in range(ROWS):
@@ -145,7 +176,22 @@ def cell_state_initialise():
 
 def update_cell_state(target_cell):
     cell_tracker[target_cell] = (deck[target_cell].value, deck[target_cell].suite, True)
+    compare_tracker[target_cell] = (deck[target_cell].value, deck[target_cell].suite, True)
 
+
+def check_for_pairs():
+    print (cell_tracker)
+    print (compare_tracker)
+    comp1 = list(compare_tracker.values())[0][0]
+    comp2 = list(compare_tracker.values())[1][0]
+    print (comp1, comp2)
+    if comp1 == comp2:
+        print ("Got a match!!")
+    else:
+        print ("No Match!!")
+        for key in compare_tracker.keys():
+            cell_tracker[key] = (deck[key].value, deck[key].suite, False)
+    compare_tracker.clear()
 
 def update_grid():
     counter = 0
@@ -153,40 +199,17 @@ def update_grid():
         for COL in range(ROWS):
             counter += 1
             for key in cell_tracker.keys():
-                #print(key, cell_tracker[key][1], cell_tracker[key][2])
                 if cell_tracker[key][2] is True and counter < DECK_LIMIT:
                     #print(COL, ROW, key, counter, cell_tracker[key][0], cell_tracker[key][1], cell_tracker[key][2])
                     row_col = translate_cell_to_row_cols(key)
-                    text_string1 = cell_tracker[key][0]
-                    text_string2 = "of"
-                    text_string3 = cell_tracker[key][1]
-                    textsurface1 = myfont.render(text_string1, False, (0, 255, 0))
-                    textsurface2 = myfont.render(text_string2, False, (0, 255, 0))
-                    textsurface3 = myfont.render(text_string3, False, (0, 255, 0))
-                    SCREEN.blit(textsurface1,
-                                ((translate_cell_to_coord(row_col[0])[0]) + 10, (translate_cell_to_coord(row_col[1])[1]) + 10))
-                    SCREEN.blit(textsurface2,
-                                ((translate_cell_to_coord(row_col[0])[0]) + 10, (translate_cell_to_coord(row_col[1])[1]) + 25))
-                    SCREEN.blit(textsurface3,
-                                ((translate_cell_to_coord(row_col[0])[0]) + 10, (translate_cell_to_coord(row_col[1])[1]) + 40))
-                    for img in card_images:
-                        card = str(cell_tracker[key][0])
-                        suite = str(cell_tracker[key][1])
-                        card_key = card + " of " + suite
-                        SCREEN.blit(card_images[card_key], (translate_cell_to_coord(row_col[0])[0], translate_cell_to_coord(row_col[1])[1]))
+                    card = str(cell_tracker[key][0])
+                    suite = str(cell_tracker[key][1])
+                    card_key = card + " of " + suite
+                    SCREEN.blit(card_images[card_key], (translate_cell_to_coord(row_col[0])[0], translate_cell_to_coord(row_col[1])[1]))
                 if cell_tracker[key][2] is False:
                     if key == counter - 1:
-                        text_string = str(counter)
-                    else:
-                        text_string = ""
-                    textsurface = myfont.render(text_string, False, (255, 0, 0))
-                    SCREEN.blit(textsurface,
-                                ((translate_cell_to_coord(COL)[0]) + 10, (translate_cell_to_coord(ROW)[1]) + 10))
-                else:
-                    text_string = ""
-                    textsurface = myfont.render(text_string, False, (255, 0, 0))
-                    SCREEN.blit(textsurface,
-                                ((translate_cell_to_coord(COL)[0]) + 10, (translate_cell_to_coord(ROW)[1]) + 10))
+                        SCREEN.blit(card_images['card background'],
+                                    ((translate_cell_to_coord(COL)[0]) + 10, (translate_cell_to_coord(ROW)[1]) + 10))
 
 
 def draw_grid():
