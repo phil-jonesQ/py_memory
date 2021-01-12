@@ -111,9 +111,6 @@ def main():
     update_grid()
 
     while True:
-
-        #cell_state_updater()
-        #print(cell_tracker)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -156,7 +153,6 @@ def translate_cell_to_row_cols(cell):
 
 def translate_row_cols_to_cell(cols, rows):
     counter = -ROWS - 1
-    print("Translate  ", cols, rows)
     for ROW in range(ROWS):
         for COL in range(ROWS):
             counter = counter + 1
@@ -180,18 +176,16 @@ def update_cell_state(target_cell):
 
 
 def check_for_pairs():
-    print (cell_tracker)
-    print (compare_tracker)
     comp1 = list(compare_tracker.values())[0][0]
     comp2 = list(compare_tracker.values())[1][0]
-    print (comp1, comp2)
     if comp1 == comp2:
-        print ("Got a match!!")
+        print("Got a match!!")
     else:
-        print ("No Match!!")
+        print("No Match!!")
         for key in compare_tracker.keys():
             cell_tracker[key] = (deck[key].value, deck[key].suite, False)
     compare_tracker.clear()
+
 
 def update_grid():
     counter = 0
@@ -200,7 +194,6 @@ def update_grid():
             counter += 1
             for key in cell_tracker.keys():
                 if cell_tracker[key][2] is True and counter < DECK_LIMIT:
-                    #print(COL, ROW, key, counter, cell_tracker[key][0], cell_tracker[key][1], cell_tracker[key][2])
                     row_col = translate_cell_to_row_cols(key)
                     card = str(cell_tracker[key][0])
                     suite = str(cell_tracker[key][1])
