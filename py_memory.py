@@ -70,7 +70,7 @@ cards_to_images = {
 card_images = {}
 path = "assets/cards"
 for name, file_name in cards_to_images.items():
-    image = pygame.transform.scale(pygame.image.load(path + os.sep + file_name), (100, 100))
+    image = pygame.transform.scale(pygame.image.load(path + os.sep + file_name), (60, 60))
     card_images[name] = image
 
 
@@ -80,13 +80,13 @@ random.shuffle(deck)
 # Track the game state by storing each cell's card and if it's been revealed (True|False)
 cell_tracker = {}
 compare_tracker = {}
+matched_cells_tracker = []
 
 BLACK = (0, 0, 0)
 WHITE = (200, 200, 200)
 RED = (255, 0, 0)
-WINDOW_HEIGHT = 900
-WINDOW_WIDTH = 900
-SCALE = 30
+WINDOW_HEIGHT = 600
+WINDOW_WIDTH = 600
 ROWS = 8
 DECK_LIMIT = 52
 
@@ -101,6 +101,7 @@ myfont = pygame.font.SysFont('Comic Sans MS', 15)
 def main():
     global SCREEN, CLOCK
     global TURNS
+    global enabled
     TURNS = 2
     pygame.init()
     SCREEN = pygame.display.set_mode((surface_sz, surface_sz))
@@ -116,22 +117,31 @@ def main():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
+                enabled = True
                 # Set the x, y postions of the mouse click
                 x, y = event.pos
+                # Translate x, y pos to grid coord
                 clicked_col = (event.pos[0] // cell_sz) + 1
                 clicked_row = (event.pos[1] // cell_sz) + 1
-                draw_grid()
+                # Translate col_row coord to a cell number
                 cell_to_update = translate_row_cols_to_cell(clicked_col, clicked_row)
-                if cell_to_update < DECK_LIMIT:
-                    print(cell_to_update)
+                # Check to see if the cell has already been matched
+                # If it has set the enabled flag to false
+                for check in range(len(matched_cells_tracker)):
+                    if cell_to_update == matched_cells_tracker[check][0]:
+                        enabled = False
+                    if cell_to_update == matched_cells_tracker[check][1]:
+                        enabled = False
+                # Process the turns and check for matches
+                if cell_to_update < DECK_LIMIT and enabled:
                     update_cell_state(cell_to_update)
                     TURNS = TURNS - 1
-                update_grid()
-                if TURNS < 1:
+                    update_grid()
+                if TURNS < 1 and len(compare_tracker) > 1 and enabled:
                     TURNS = 2
                     check_for_pairs()
-                    update_grid()
-
+                else:
+                    TURNS = 1
         pygame.display.update()
         pygame.display.flip()
 
@@ -179,9 +189,11 @@ def check_for_pairs():
     comp1 = list(compare_tracker.values())[0][0]
     comp2 = list(compare_tracker.values())[1][0]
     if comp1 == comp2:
-        print("Got a match!!")
+        # Store a pairing in the matched_cells_tracker
+        cell1 = list(compare_tracker.keys())[0]
+        cell2 = list(compare_tracker.keys())[1]
+        matched_cells_tracker.append(tuple((cell1, cell2)))
     else:
-        print("No Match!!")
         for key in compare_tracker.keys():
             cell_tracker[key] = (deck[key].value, deck[key].suite, False)
     compare_tracker.clear()
@@ -198,11 +210,11 @@ def update_grid():
                     card = str(cell_tracker[key][0])
                     suite = str(cell_tracker[key][1])
                     card_key = card + " of " + suite
-                    SCREEN.blit(card_images[card_key], (translate_cell_to_coord(row_col[0])[0], translate_cell_to_coord(row_col[1])[1]))
+                    SCREEN.blit(card_images[card_key], (translate_cell_to_coord(row_col[0])[0] + 5, translate_cell_to_coord(row_col[1])[1] + 5))
                 if cell_tracker[key][2] is False:
                     if key == counter - 1:
                         SCREEN.blit(card_images['card background'],
-                                    ((translate_cell_to_coord(COL)[0]) + 10, (translate_cell_to_coord(ROW)[1]) + 10))
+                                    ((translate_cell_to_coord(COL)[0]) + 5, (translate_cell_to_coord(ROW)[1]) + 5))
 
 
 def draw_grid():
