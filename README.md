@@ -10,7 +10,7 @@ Simple memory type game
 
 * Separated by suites
 
-* Layed out, face down, in grid of 64
+* Laid out, face down, in grid of 64
 
 * Player clicks first and second choice
 
