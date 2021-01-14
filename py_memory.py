@@ -5,9 +5,23 @@ import random
 from MemoryCard import Card
 
 
-# Initialise
+# Initialise Constants
 suites = ['hearts', 'diamonds', 'spades', 'clubs']
 values = ['ace', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'jack', 'queen', 'king']
+
+BLACK = (0, 0, 0)
+WHITE = (200, 200, 200)
+RED = (255, 0, 0)
+WINDOW_HEIGHT = 700
+WINDOW_WIDTH = 600
+ROWS = 8
+DECK_LIMIT = 52
+
+cell_sz = WINDOW_HEIGHT // ROWS
+surface_sz = ROWS * cell_sz
+
+pygame.font.init()  # you have to call this at the start,
+myfont = pygame.font.SysFont('Courier New', 20)
 
 cards_to_images = {
                     'ace of clubs': 'AC.png',
@@ -70,9 +84,10 @@ cards_to_images = {
 card_images = {}
 path = "assets/cards"
 for name, file_name in cards_to_images.items():
-    image = pygame.transform.scale(pygame.image.load(path + os.sep + file_name), (60, 60))
+    image = pygame.transform.scale(pygame.image.load(path + os.sep + file_name), (70, 90))
     card_images[name] = image
 
+## Setup New Game
 
 deck = [Card(value, suite) for value in values for suite in suites]
 random.shuffle(deck)
@@ -82,33 +97,27 @@ cell_tracker = {}
 compare_tracker = {}
 matched_cells_tracker = []
 
-BLACK = (0, 0, 0)
-WHITE = (200, 200, 200)
-RED = (255, 0, 0)
-WINDOW_HEIGHT = 600
-WINDOW_WIDTH = 600
-ROWS = 8
-DECK_LIMIT = 52
 
-
-cell_sz = WINDOW_HEIGHT // ROWS
-surface_sz = ROWS * cell_sz
-
-pygame.font.init()  # you have to call this at the start,
-myfont = pygame.font.SysFont('Comic Sans MS', 15)
+def reset():
+    cell_tracker.clear()
+    compare_tracker.clear()
+    matched_cells_tracker.clear()
+    random.shuffle(deck)
+    cell_state_initialise()
+    update_grid()
 
 
 def main():
     global SCREEN, CLOCK
     global TURNS
     global enabled
+    global attempts
     TURNS = 2
+    attempts = 0
     pygame.init()
     SCREEN = pygame.display.set_mode((surface_sz, surface_sz))
     CLOCK = pygame.time.Clock()
-    SCREEN.fill(BLACK)
     cell_state_initialise()
-    draw_grid()
     update_grid()
 
     while True:
@@ -116,6 +125,10 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    attempts = 0
+                    reset()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 enabled = True
                 # Set the x, y postions of the mouse click
@@ -140,10 +153,26 @@ def main():
                 if TURNS < 1 and len(compare_tracker) > 1 and enabled:
                     TURNS = 2
                     check_for_pairs()
+                    attempts += 1
                 else:
                     TURNS = 1
+        game_stats_display()
         pygame.display.update()
         pygame.display.flip()
+
+
+def game_stats_display():
+    attempts_string = "ATTEMPTS " + str(attempts)
+    matches_string = "MATCHES " + str((len(matched_cells_tracker)))
+    message_string = "SPACE TO RESTART.."
+
+    textsurface1 = myfont.render(attempts_string, False, (0, 255, 0))
+    textsurface2 = myfont.render(matches_string, False, (0, 255, 0))
+    textsurface3 = myfont.render(message_string, False, (255, 0, 0))
+
+    SCREEN.blit(textsurface1, (WINDOW_WIDTH - 150, WINDOW_HEIGHT - 100))
+    SCREEN.blit(textsurface2, (WINDOW_WIDTH - 150, WINDOW_HEIGHT - 150))
+    SCREEN.blit(textsurface3, (WINDOW_WIDTH - 200, WINDOW_HEIGHT - 75))
 
 
 def translate_cell_to_coord(cell):
@@ -200,6 +229,7 @@ def check_for_pairs():
 
 
 def update_grid():
+    SCREEN.fill(BLACK)
     counter = 0
     for ROW in range(ROWS):
         for COL in range(ROWS):
@@ -217,13 +247,5 @@ def update_grid():
                                     ((translate_cell_to_coord(COL)[0]) + 5, (translate_cell_to_coord(ROW)[1]) + 5))
 
 
-def draw_grid():
-    SCREEN.fill(BLACK)
-    for ROW in range(ROWS):
-        for COL in range(ROWS):
-            rect = pygame.Rect(COL*cell_sz, ROW*cell_sz,
-                               cell_sz, cell_sz)
-            pygame.draw.rect(SCREEN, WHITE, rect, 1)
-
-
 main()
+
