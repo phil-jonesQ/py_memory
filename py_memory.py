@@ -5,7 +5,7 @@ Numbered 1 - 52
 
 Separated by suites
 
-Layed out, face down on an invisble grid of 64 cells for Game Engine Design
+Laid out, face down on an invisble grid of 64 cells for Game Engine Design
 
 Player clicks first and second choice
 
