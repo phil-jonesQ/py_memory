@@ -46,7 +46,7 @@ cell_sz = WINDOW_HEIGHT // ROWS
 surface_sz = ROWS * cell_sz
 
 pygame.font.init()  # you have to call this at the start,
-myfont = pygame.font.SysFont('Courier New', 20)
+thefont = pygame.font.SysFont('Courier New', 20)
 
 cards_to_images = {
                     'ace of clubs': 'AC.png',
@@ -112,10 +112,9 @@ for name, file_name in cards_to_images.items():
     image = pygame.transform.scale(pygame.image.load(path + os.sep + file_name), (70, 90))
     card_images[name] = image
 
-# Setup New Game
 
+# Setup New Deck of Cards iterating and instantiating a deck of card objects
 deck = [Card(value, suite) for value in values for suite in suites]
-random.shuffle(deck)
 
 # Track the game state by storing each cell's card and if it's been revealed (True|False)
 cell_tracker = {}
@@ -123,12 +122,20 @@ compare_tracker = {}
 matched_cells_tracker = []
 
 
+def shuffle():
+    random.shuffle(deck)
+    cell_state_reveal()
+    update_grid()
+    pygame.time.wait(100)
+    cell_state_initialise()
+    update_grid()
+
+
 def reset():
     cell_tracker.clear()
     compare_tracker.clear()
     matched_cells_tracker.clear()
-    random.shuffle(deck)
-    cell_state_initialise()
+    shuffle()
     update_grid()
 
 
@@ -142,7 +149,7 @@ def main():
     pygame.init()
     SCREEN = pygame.display.set_mode((surface_sz, surface_sz))
     CLOCK = pygame.time.Clock()
-    cell_state_initialise()
+    shuffle()
     update_grid()
 
     while True:
@@ -156,7 +163,7 @@ def main():
                     reset()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 enabled = True
-                # Set the x, y postions of the mouse click
+                # Set the x, y positions of the mouse click
                 x, y = event.pos
                 # Translate x, y pos to grid coord
                 clicked_col = (event.pos[0] // cell_sz) + 1
@@ -175,15 +182,13 @@ def main():
                     update_cell_state(cell_to_update)
                     TURNS = TURNS - 1
                     update_grid()
-                if TURNS < 1 and len(compare_tracker) > 1 and enabled:
+                if TURNS < 1 < len(compare_tracker) and enabled:
                     TURNS = 2
                     check_for_pairs()
                     attempts += 1
                 else:
                     TURNS = 1
         game_stats_display()
-        pygame.display.update()
-        pygame.display.flip()
 
 
 def game_stats_display():
@@ -191,13 +196,15 @@ def game_stats_display():
     matches_string = "MATCHES " + str((len(matched_cells_tracker)))
     message_string = "SPACE TO RESTART.."
 
-    textsurface1 = myfont.render(attempts_string, False, (0, 255, 0))
-    textsurface2 = myfont.render(matches_string, False, (0, 255, 0))
-    textsurface3 = myfont.render(message_string, False, (255, 0, 0))
+    textsurface1 = thefont.render(attempts_string, False, (0, 255, 0))
+    textsurface2 = thefont.render(matches_string, False, (0, 255, 0))
+    textsurface3 = thefont.render(message_string, False, (255, 0, 0))
 
     SCREEN.blit(textsurface1, (WINDOW_WIDTH - 150, WINDOW_HEIGHT - 100))
     SCREEN.blit(textsurface2, (WINDOW_WIDTH - 150, WINDOW_HEIGHT - 150))
     SCREEN.blit(textsurface3, (WINDOW_WIDTH - 200, WINDOW_HEIGHT - 75))
+    pygame.display.update()
+    pygame.display.flip()
 
 
 def translate_cell_to_coord(cell):
@@ -227,10 +234,22 @@ def translate_row_cols_to_cell(cols, rows):
 
 def cell_state_initialise():
     counter = 0
+    repeat = 20
+    while repeat > 0:
+        repeat -= 1
+        for ROW in range(ROWS):
+            for COL in range(ROWS):
+                if counter < DECK_LIMIT:
+                    cell_tracker[counter] = (deck[counter].value, deck[counter].suite, False)
+                counter += 1
+
+
+def cell_state_reveal():
+    counter = 0
     for ROW in range(ROWS):
         for COL in range(ROWS):
             if counter < DECK_LIMIT:
-                cell_tracker[counter] = (deck[counter].value, deck[counter].suite, False)
+                update_cell_state(counter)
             counter += 1
 
 
@@ -270,6 +289,8 @@ def update_grid():
                     if key == counter - 1:
                         SCREEN.blit(card_images['card background'],
                                     ((translate_cell_to_coord(COL)[0]) + 5, (translate_cell_to_coord(ROW)[1]) + 5))
+    pygame.display.update()
+    pygame.display.flip()
 
 
 main()
