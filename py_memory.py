@@ -1,3 +1,28 @@
+""" Version 1.00 - simple version of the memory card game..
+Set of standard playing cards
+
+Numbered 1 - 52
+
+Separated by suites
+
+Layed out, face down on an invisble grid of 64 cells for Game Engine Design
+
+Player clicks first and second choice
+
+Cards are revealed - if they match they stay revealed
+
+if they don't match they go back to hidden
+
+the players click attempts are tracked
+
+the game is over when all cards are revealed
+Phil Jones - Jan 2021
+
+Version 1.01 - Add Docstring
+
+"""
+
+
 import pygame
 import sys
 import os
@@ -87,7 +112,7 @@ for name, file_name in cards_to_images.items():
     image = pygame.transform.scale(pygame.image.load(path + os.sep + file_name), (70, 90))
     card_images[name] = image
 
-## Setup New Game
+# Setup New Game
 
 deck = [Card(value, suite) for value in values for suite in suites]
 random.shuffle(deck)
