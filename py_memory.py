@@ -19,6 +19,7 @@ the game is over when all cards are revealed
 Phil Jones - Jan 2021
 
 Version 1.01 - Add Docstring
+Version 1.02 - Add visual reveal after shuffle i.e. start or restart of game
 
 """
 
@@ -27,6 +28,7 @@ import pygame
 import sys
 import os
 import random
+from random import randint
 from MemoryCard import Card
 
 
@@ -124,11 +126,17 @@ matched_cells_tracker = []
 
 def shuffle():
     random.shuffle(deck)
-    cell_state_reveal()
-    update_grid()
-    pygame.time.wait(100)
+    repeat = 20
     cell_state_initialise()
     update_grid()
+    while repeat > 0:
+        repeat -= 1
+        cell_state_initialise()
+        cell_state_reveal()
+        update_grid()
+        if repeat == 0:
+            cell_state_initialise()
+            update_grid()
 
 
 def reset():
@@ -180,6 +188,7 @@ def main():
                 # Process the turns and check for matches
                 if cell_to_update < DECK_LIMIT and enabled:
                     update_cell_state(cell_to_update)
+                    update_cell_tracker(cell_to_update)
                     TURNS = TURNS - 1
                     update_grid()
                 if TURNS < 1 < len(compare_tracker) and enabled:
@@ -248,19 +257,26 @@ def cell_state_reveal():
     counter = 0
     for ROW in range(ROWS):
         for COL in range(ROWS):
+            for _ in range(ROWS):
+                value = randint(0, DECK_LIMIT - 1)
             if counter < DECK_LIMIT:
-                update_cell_state(counter)
+                update_cell_state(value)
             counter += 1
 
 
 def update_cell_state(target_cell):
     cell_tracker[target_cell] = (deck[target_cell].value, deck[target_cell].suite, True)
+
+
+def update_cell_tracker(target_cell):
     compare_tracker[target_cell] = (deck[target_cell].value, deck[target_cell].suite, True)
 
 
 def check_for_pairs():
+
     comp1 = list(compare_tracker.values())[0][0]
     comp2 = list(compare_tracker.values())[1][0]
+    print(comp1, comp2)
     if comp1 == comp2:
         # Store a pairing in the matched_cells_tracker
         cell1 = list(compare_tracker.keys())[0]
