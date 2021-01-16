@@ -2,7 +2,7 @@
 
 Simple memory type game
 
-![alt text](https://github.com/phil-jonesQ/py_memory/blob/main/inplawy.PNG?raw=true)
+![alt text](https://github.com/phil-jonesQ/py_memory/blob/main/inplay.PNG?raw=true)
 
 * Set of standard playing cards
 
