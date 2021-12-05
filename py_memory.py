@@ -49,6 +49,7 @@ surface_sz = ROWS * cell_sz
 
 pygame.font.init()  # you have to call this at the start,
 thefont = pygame.font.SysFont('Courier New', 20)
+thefont_small = pygame.font.SysFont('Courier New', 12)
 
 cards_to_images = {
                     'ace of clubs': 'AC.png',
@@ -126,7 +127,7 @@ matched_cells_tracker = []
 
 def shuffle():
     random.shuffle(deck)
-    repeat = 20
+    repeat = 2
     cell_state_initialise()
     update_grid()
     while repeat > 0:
@@ -137,6 +138,7 @@ def shuffle():
         if repeat == 0:
             cell_state_initialise()
             update_grid()
+    print(cell_tracker)
 
 
 def reset():
@@ -194,6 +196,7 @@ def main():
                 if TURNS < 1 < len(compare_tracker) and enabled:
                     TURNS = 2
                     check_for_pairs()
+                    #update_grid()
                     attempts += 1
                 else:
                     TURNS = 1
@@ -273,12 +276,12 @@ def update_cell_tracker(target_cell):
 
 
 def check_for_pairs():
-
     comp1 = list(compare_tracker.values())[0][0]
     comp2 = list(compare_tracker.values())[1][0]
-    print(comp1, comp2)
+    #print(matched_cells_tracker)
     if comp1 == comp2:
         # Store a pairing in the matched_cells_tracker
+        print ("Match: " + comp1 + " to " + comp2)
         cell1 = list(compare_tracker.keys())[0]
         cell2 = list(compare_tracker.keys())[1]
         matched_cells_tracker.append(tuple((cell1, cell2)))
@@ -297,14 +300,30 @@ def update_grid():
             for key in cell_tracker.keys():
                 if cell_tracker[key][2] is True and counter < DECK_LIMIT:
                     row_col = translate_cell_to_row_cols(key)
+                    #print("row and col revealed is " + str(row_col))
                     card = str(cell_tracker[key][0])
                     suite = str(cell_tracker[key][1])
                     card_key = card + " of " + suite
-                    SCREEN.blit(card_images[card_key], (translate_cell_to_coord(row_col[0])[0] + 5, translate_cell_to_coord(row_col[1])[1] + 5))
+                    SCREEN.blit(card_images[card_key], (translate_cell_to_coord(row_col[0])[0] + 15, translate_cell_to_coord(row_col[1])[1] + 15))
                 if cell_tracker[key][2] is False:
                     if key == counter - 1:
                         SCREEN.blit(card_images['card background'],
-                                    ((translate_cell_to_coord(COL)[0]) + 5, (translate_cell_to_coord(ROW)[1]) + 5))
+                                    ((translate_cell_to_coord(COL)[0]) + 12, (translate_cell_to_coord(ROW)[1]) + 15))
+    
+    # Add UI indicator when the cell was matched
+    for ROW in range(ROWS):
+        for COL in range(ROWS):
+            match_counter = 0
+            for matches in matched_cells_tracker:
+                match_counter += 1
+                row_col_1 = translate_cell_to_row_cols(matches[0])
+                row_col_2 = translate_cell_to_row_cols(matches[1])
+                matches_string = str(match_counter)
+                text_surface = thefont_small.render(matches_string, False, (0, 255, 0))
+                SCREEN.blit(text_surface, (translate_cell_to_coord(row_col_1[0])[0] + 2, translate_cell_to_coord(row_col_1[1])[1] + 15))
+                SCREEN.blit(text_surface, (translate_cell_to_coord(row_col_2[0])[0] + 2, translate_cell_to_coord(row_col_2[1])[1] + 15))
+
+
     pygame.display.update()
     pygame.display.flip()
 
