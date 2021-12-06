@@ -20,8 +20,8 @@ Phil Jones - Jan 2021
 
 Version 1.01 - Add Docstring
 Version 1.02 - Add visual reveal after shuffle i.e. start or restart of game
-Version 1.03 - Convert to kids game using new asset set
-
+Version 1.03 - Convert to kids game using new asset set - changes dynamic of game 10 duplicated cards byt game engine design made it relatively
+                to change - Phil Jones December 2021
 """
 
 
@@ -96,6 +96,9 @@ matched_cells_tracker = []
 
 
 def shuffle():
+    """
+    Shuffle the cards and show visual reveals for the player
+    """
     random.shuffle(deck)
     repeat = 10
     cell_state_initialise()
@@ -111,6 +114,9 @@ def shuffle():
 
 
 def reset():
+    """
+    reset the game state
+    """
     global timer, attempts, ms, timer_run
     timer = 0
     attempts = 0
@@ -124,6 +130,9 @@ def reset():
 
 
 def main():
+    """
+    game setup and loop
+    """
     global SCREEN, CLOCK
     global TURNS
     global enabled
@@ -181,6 +190,7 @@ def main():
                 else:
                     TURNS = 1
 
+        # Set FPS
         CLOCK.tick(FPS)
         
         # Timer - floor it at 1000 seconds to avoid display issues
@@ -194,12 +204,16 @@ def main():
         # Check when player has one and freeze the timer
         if len(matched_cells_tracker) == (DECK_LIMIT / 2):
             timer_run = False
+            update_grid()
 
+        # Call Update HUD Screen data
         game_stats_display()
-        
 
 
 def game_stats_display():
+    """
+    Updates HUD data
+    """
     global timer
     # Clear the timer area before drawing the HUD display items
     pygame.draw.rect(SCREEN, [0, 0, 0], [WINDOW_WIDTH // 4, WINDOW_HEIGHT - 120, 100, 100], 0)
@@ -222,11 +236,21 @@ def game_stats_display():
 
 
 def translate_cell_to_coord(cell):
+    """
+    Translate a cell to x/y coord
+    takes: cell
+    returns: coord tuple 
+    """
     coord = tuple((cell * cell_sz, cell * cell_sz))
     return coord
 
 
 def translate_cell_to_row_cols(cell):
+    """
+    Translates a cell to row / col coord
+    takes: cell
+    returns: col, row tuple
+    """
     counter = 0
     for ROW in range(ROWS):
         for COL in range(ROWS):
@@ -237,6 +261,11 @@ def translate_cell_to_row_cols(cell):
 
 
 def translate_row_cols_to_cell(cols, rows):
+    """
+    translate row and cols back to a cell
+    takes: cols, rows
+    returns: cell
+    """
     counter = -ROWS - 1
     for ROW in range(ROWS):
         for COL in range(ROWS):
@@ -247,6 +276,9 @@ def translate_row_cols_to_cell(cols, rows):
 
 
 def cell_state_initialise():
+    """
+    Init and store the layout of the cards
+    """
     counter = 0
     repeat = 20
     while repeat > 0:
@@ -259,6 +291,9 @@ def cell_state_initialise():
 
 
 def cell_state_reveal():
+    """
+    Randomly reveal the card - to show the player a flash of the card
+    """
     counter = 0
     for ROW in range(ROWS):
         for COL in range(ROWS):
@@ -270,14 +305,23 @@ def cell_state_reveal():
 
 
 def update_cell_state(target_cell):
+    """
+    Update a cell to be revealed
+    """
     cell_tracker[target_cell] = (deck[target_cell].value, deck[target_cell].suite, True)
 
 
 def update_cell_tracker(target_cell):
+    """
+    Update the comparison checker, used per turn
+    """
     compare_tracker[target_cell] = (deck[target_cell].value, deck[target_cell].suite, True)
 
 
 def check_for_pairs():
+    """
+    Check to see if the pair matched
+    """
     comp1 = list(compare_tracker.values())[0][0]
     comp2 = list(compare_tracker.values())[1][0]
     if comp1 == comp2:
@@ -288,10 +332,14 @@ def check_for_pairs():
     else:
         for key in compare_tracker.keys():
             cell_tracker[key] = (deck[key].value, deck[key].suite, False)
+    # Clear the comparison checker for the next turn
     compare_tracker.clear()
 
 
 def update_grid():
+    """
+    Update the deck of cards
+    """
     SCREEN.fill(BLACK)
     counter = 0
     for ROW in range(ROWS):
@@ -319,13 +367,20 @@ def update_grid():
                 row_col_2 = translate_cell_to_row_cols(matches[1])
                 matches_string = str(match_counter)
                 text_surface = thefont_small.render(matches_string, False, (0, 255, 0))
-                SCREEN.blit(text_surface, (translate_cell_to_coord(row_col_1[0])[0] + 2, translate_cell_to_coord(row_col_1[1])[1] + 15))
-                SCREEN.blit(text_surface, (translate_cell_to_coord(row_col_2[0])[0] + 2, translate_cell_to_coord(row_col_2[1])[1] + 15))
+                SCREEN.blit(text_surface, (translate_cell_to_coord(row_col_1[0])[0] + 2, 
+                translate_cell_to_coord(row_col_1[1])[1] + 15))
+                SCREEN.blit(text_surface, (translate_cell_to_coord(row_col_2[0])[0] + 2, 
+                translate_cell_to_coord(row_col_2[1])[1] + 15))
 
 
+    # Update the display
     pygame.display.update()
     pygame.display.flip()
 
 
-main()
+"""
+Call the main function
+"""
 
+if __name__ == '__main__':
+    main()
