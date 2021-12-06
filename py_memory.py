@@ -20,6 +20,7 @@ Phil Jones - Jan 2021
 
 Version 1.01 - Add Docstring
 Version 1.02 - Add visual reveal after shuffle i.e. start or restart of game
+Version 1.03 - Convert to kids game using new asset set
 
 """
 
@@ -33,86 +34,55 @@ from MemoryCard import Card
 
 
 # Initialise Constants
-suites = ['hearts', 'diamonds', 'spades', 'clubs']
-values = ['ace', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'jack', 'queen', 'king']
+suites = ['set1', 'set2']
+values = ['cheese', 'cheese_burger', 'cherry', 'chilly', 'flame', 'hot_dog', 'ketchup', 'marsh_m_blue', 'marsh_m_pink', 'sausage']
 
 BLACK = (0, 0, 0)
 WHITE = (200, 200, 200)
 RED = (255, 0, 0)
-WINDOW_HEIGHT = 700
+WINDOW_HEIGHT = 600
 WINDOW_WIDTH = 600
-ROWS = 8
-DECK_LIMIT = 52
+ROWS = 6
+DECK_LIMIT = 20
 
 cell_sz = WINDOW_HEIGHT // ROWS
 surface_sz = ROWS * cell_sz
 
 pygame.font.init()  # you have to call this at the start,
 thefont = pygame.font.SysFont('Courier New', 20)
+thefont_larger = pygame.font.SysFont('Courier New', 40)
 thefont_small = pygame.font.SysFont('Courier New', 12)
 
 cards_to_images = {
-                    'ace of clubs': 'AC.png',
-                    'ace of diamonds': 'AD.png',
-                    'ace of hearts': 'AH.png',
-                    'ace of spades': 'AS.png',
-                    'two of clubs': '2C.png',
-                    'two of diamonds': '2D.png',
-                    'two of hearts': '2H.png',
-                    'two of spades': '2S.png',
-                    'three of clubs': '3C.png',
-                    'three of diamonds': '3D.png',
-                    'three of hearts': '3H.png',
-                    'three of spades': '3S.png',
-                    'four of clubs': '4C.png',
-                    'four of diamonds': '4D.png',
-                    'four of hearts': '4H.png',
-                    'four of spades': '4S.png',
-                    'five of clubs': '5C.png',
-                    'five of diamonds': '5D.png',
-                    'five of hearts': '5H.png',
-                    'five of spades': '5S.png',
-                    'six of clubs': '6C.png',
-                    'six of diamonds': '6D.png',
-                    'six of hearts': '6H.png',
-                    'six of spades': '6S.png',
-                    'seven of clubs': '7C.png',
-                    'seven of diamonds': '7D.png',
-                    'seven of hearts': '7H.png',
-                    'seven of spades': '7S.png',
-                    'eight of clubs': '8C.png',
-                    'eight of diamonds': '8D.png',
-                    'eight of hearts': '8H.png',
-                    'eight of spades': '8S.png',
-                    'nine of clubs': '9C.png',
-                    'nine of diamonds': '9D.png',
-                    'nine of hearts': '9H.png',
-                    'nine of spades': '9S.png',
-                    'ten of clubs': '10C.png',
-                    'ten of diamonds': '10D.png',
-                    'ten of hearts': '10H.png',
-                    'ten of spades': '10S.png',
-                    'jack of clubs': 'JC.png',
-                    'jack of diamonds': 'JD.png',
-                    'jack of hearts': 'JH.png',
-                    'jack of spades': 'JS.png',
-                    'queen of clubs': 'QC.png',
-                    'queen of diamonds': 'QD.png',
-                    'queen of hearts': 'QH.png',
-                    'queen of spades': 'QS.png',
-                    'king of clubs': 'KC.png',
-                    'king of diamonds': 'KD.png',
-                    'king of hearts': 'KH.png',
-                    'king of spades': 'KS.png',
-                    'card background': 'red_back.png'
+                    'cheese of set1': 'cheese.png',
+                    'cheese of set2': 'cheese_set2.png',
+                    'cheese_burger of set1': 'cheese_burger.png',
+                    'cheese_burger of set2': 'cheese_burger_set2.png',
+                    'cherry of set1': 'cherry.png',
+                    'cherry of set2': 'cherry_set2.png',
+                    'chilly of set1': 'chilly.png',
+                    'chilly of set2': 'chilly_set2.png',
+                    'flame of set1': 'flame.png',
+                    'flame of set2': 'flame_set2.png',
+                    'hot_dog of set1': 'hot_dog.png',
+                    'hot_dog of set2': 'hot_dog_set2.png',
+                    'ketchup of set1': 'ketchup.png',
+                    'ketchup of set2': 'ketchup_set2.png',
+                    'marsh_m_blue of set1': 'marsh_m_blue.png',
+                    'marsh_m_blue of set2': 'marsh_m_blue_set2.png',
+                    'marsh_m_pink of set1': 'marsh_m_pink.png',
+                    'marsh_m_pink of set2': 'marsh_m_pink_set2.png',
+                    'sausage of set1': 'sausage.png',
+                    'sausage of set2': 'sausage_set2.png',
+                    'card background': 'card_background.png'
 }
 
 # Load Card Image set
 # Store in a dictionary so we can map the image to name
 card_images = {}
-path = "assets/cards"
+path = "assets/shapes"
 for name, file_name in cards_to_images.items():
-    image = pygame.transform.scale(pygame.image.load(path + os.sep + file_name), (70, 90))
+    image = pygame.transform.scale(pygame.image.load(path + os.sep + file_name), (80, 80))
     card_images[name] = image
 
 
@@ -127,7 +97,7 @@ matched_cells_tracker = []
 
 def shuffle():
     random.shuffle(deck)
-    repeat = 2
+    repeat = 10
     cell_state_initialise()
     update_grid()
     while repeat > 0:
@@ -138,10 +108,14 @@ def shuffle():
         if repeat == 0:
             cell_state_initialise()
             update_grid()
-    print(cell_tracker)
 
 
 def reset():
+    global timer, attempts, ms, timer_run
+    timer = 0
+    attempts = 0
+    ms = 0
+    timer_run = True
     cell_tracker.clear()
     compare_tracker.clear()
     matched_cells_tracker.clear()
@@ -154,11 +128,18 @@ def main():
     global TURNS
     global enabled
     global attempts
+    global timer
+    global ms
+    global timer_run
     TURNS = 2
     attempts = 0
+    timer = 0
+    ms = 0
+    timer_run = True
     pygame.init()
     SCREEN = pygame.display.set_mode((surface_sz, surface_sz))
     CLOCK = pygame.time.Clock()
+    FPS = 60
     shuffle()
     update_grid()
 
@@ -196,25 +177,46 @@ def main():
                 if TURNS < 1 < len(compare_tracker) and enabled:
                     TURNS = 2
                     check_for_pairs()
-                    #update_grid()
                     attempts += 1
                 else:
                     TURNS = 1
+
+        CLOCK.tick(FPS)
+        
+        # Timer - floor it at 1000 seconds to avoid display issues
+        ms += CLOCK.tick_busy_loop(60)
+        if ms > 1000 and timer_run:
+            timer += 1
+            ms = 0
+        if timer > 1000:
+            timer = 1000
+
+        # Check when player has one and freeze the timer
+        if len(matched_cells_tracker) == (DECK_LIMIT / 2):
+            timer_run = False
+
         game_stats_display()
+        
 
 
 def game_stats_display():
+    global timer
+    # Clear the timer area before drawing the HUD display items
+    pygame.draw.rect(SCREEN, [0, 0, 0], [WINDOW_WIDTH // 4, WINDOW_HEIGHT - 120, 100, 100], 0)
     attempts_string = "ATTEMPTS " + str(attempts)
     matches_string = "MATCHES " + str((len(matched_cells_tracker)))
     message_string = "SPACE TO RESTART.."
+    timer_string = str(timer)
 
-    textsurface1 = thefont.render(attempts_string, False, (0, 255, 0))
+    textsurface1 = thefont.render(attempts_string, False, (255, 0, 0))
     textsurface2 = thefont.render(matches_string, False, (0, 255, 0))
     textsurface3 = thefont.render(message_string, False, (255, 0, 0))
+    textsurface4 = thefont_larger.render(timer_string, False, (255, 255, 255))
 
-    SCREEN.blit(textsurface1, (WINDOW_WIDTH - 150, WINDOW_HEIGHT - 100))
-    SCREEN.blit(textsurface2, (WINDOW_WIDTH - 150, WINDOW_HEIGHT - 150))
-    SCREEN.blit(textsurface3, (WINDOW_WIDTH - 200, WINDOW_HEIGHT - 75))
+    SCREEN.blit(textsurface1, (WINDOW_WIDTH // 2, WINDOW_HEIGHT - 280))
+    SCREEN.blit(textsurface2, (WINDOW_WIDTH // 2, WINDOW_HEIGHT - 220))
+    SCREEN.blit(textsurface3, (WINDOW_WIDTH - 240, WINDOW_HEIGHT - 30))
+    SCREEN.blit(textsurface4, (WINDOW_WIDTH // 4, WINDOW_HEIGHT - 120))
     pygame.display.update()
     pygame.display.flip()
 
@@ -278,10 +280,8 @@ def update_cell_tracker(target_cell):
 def check_for_pairs():
     comp1 = list(compare_tracker.values())[0][0]
     comp2 = list(compare_tracker.values())[1][0]
-    #print(matched_cells_tracker)
     if comp1 == comp2:
         # Store a pairing in the matched_cells_tracker
-        print ("Match: " + comp1 + " to " + comp2)
         cell1 = list(compare_tracker.keys())[0]
         cell2 = list(compare_tracker.keys())[1]
         matched_cells_tracker.append(tuple((cell1, cell2)))
@@ -300,7 +300,6 @@ def update_grid():
             for key in cell_tracker.keys():
                 if cell_tracker[key][2] is True and counter < DECK_LIMIT:
                     row_col = translate_cell_to_row_cols(key)
-                    #print("row and col revealed is " + str(row_col))
                     card = str(cell_tracker[key][0])
                     suite = str(cell_tracker[key][1])
                     card_key = card + " of " + suite
